@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Accessibility Tool · Yadav Subba</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        .accessibility-tool{max-width:900px;margin:0 auto}
+        .accessibility-tool .field-group{display:flex;flex-direction:column;align-items:stretch;gap:6px;margin-bottom:18px}
+        .accessibility-tool .field-group label{font-weight:600;color:#1a5c3a;font-size:1rem}
+        .accessibility-tool textarea{width:100%;padding:14px 18px;border:2px solid #d4e4dc;border-radius:8px;font-size:1.05rem;font-family:inherit;resize:vertical;min-height:160px;transition:border-color .3s;background:#fff;line-height:1.7;color:#1e1e1e}
+        .accessibility-tool textarea:focus{border-color:#1a5c3a;outline:0}
+        .accessibility-tool textarea::placeholder{color:#aaa}
+        .toolbar{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0 16px;padding:10px 0;border-top:1px solid #e6e6e6;border-bottom:1px solid #e6e6e6}
+        .toolbar .btn{min-width:80px;padding:8px 18px;font-size:.9rem;display:flex;align-items:center;justify-content:center;gap:6px}
+        .toolbar .btn:disabled{opacity:0.5;cursor:not-allowed}
+        .toolbar .btn-mic{background:#1a5c3a;color:#fff;border:0;border-radius:8px;padding:8px 18px;font-size:.9rem;cursor:pointer;transition:background .2s;font-weight:500}
+        .toolbar .btn-mic:hover{background:#13482e}
+        .toolbar .btn-mic.listening{background:#c0392b;animation:pulse 1.2s infinite}
+        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+        .toolbar .btn-mic:disabled{opacity:0.5;cursor:not-allowed}
+        .status-bar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:#f4f8f6;border-radius:8px;border:1px solid #d4e4dc;margin-bottom:14px;font-size:.9rem;color:#2d4a3b;min-height:44px}
+        .status-bar .status-dot{width:10px;height:10px;border-radius:50%;background:#95a5a6;flex-shrink:0;transition:background .3s}
+        .status-bar .status-dot.active{background:#27ae60}
+        .status-bar .status-dot.listening{background:#c0392b;animation:blink 0.8s infinite}
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+        .features-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+        .features-grid .feature-card{background:#fff;border:1px solid #e6e6e6;border-radius:8px;padding:12px 16px;transition:border-color .2s}
+        .features-grid .feature-card:hover{border-color:#1a5c3a}
+        .features-grid .feature-card .feature-name{font-weight:600;color:#1a5c3a;font-size:.95rem;display:block;margin-bottom:2px}
+        .features-grid .feature-card .feature-desc{font-size:.85rem;color:#4a4a4a;line-height:1.4}
+        .btn-secondary{background:#5f7a6b;color:#fff;border:0;border-radius:8px;padding:8px 18px;font-size:.9rem;cursor:pointer;transition:background .2s;font-weight:500}
+        .btn-secondary:hover{background:#4a6558}
+        .btn-copy{background:#5f7a6b;color:#fff;border:0;border-radius:8px;padding:8px 18px;font-size:.9rem;cursor:pointer;transition:background .2s;font-weight:500}
+        .btn-copy:hover{background:#4a6558}
+        .btn-copy.copied{background:#27ae60}
+        .btn-clear{background:#d35400;color:#fff;border:0;border-radius:8px;padding:8px 18px;font-size:.9rem;cursor:pointer;transition:background .2s;font-weight:500}
+        .btn-clear:hover{background:#a04000}
+        .char-count{font-size:.8rem;color:#4a6b5a;text-align:right;padding:4px 0}
+        @media(max-width:640px){.features-grid{grid-template-columns:1fr}.toolbar .btn{min-width:60px;padding:8px 14px;font-size:.8rem}}
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header class="site-header" role="banner">
+        <div class="header-inner">
+            <a href="../index.html" class="site-title">Yadav Subba</a>
+            <button class="hamburger"
+                    aria-expanded="false"
+                    aria-controls="primary-nav"
+                    aria-label="Toggle navigation menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+        <nav id="primary-nav" class="primary-nav" role="navigation" aria-label="Primary navigation">
+            <ul class="nav-list">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../about.html">About</a></li>
+                <li><a href="../experience.html">Experience</a></li>
+                <li><a href="../skills.html">Skills</a></li>
+                <li><a href="../projects.html">Projects</a></li>
+                <li><a href="../index.html#teaching">Teaching</a></li>
+                <li><a href="../contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- ===== MAIN ===== -->
+    <main id="main-content">
+        <section class="section accessibility-tool" aria-labelledby="tool-heading">
+            <div class="section-title-bar">
+                <h2 id="tool-heading">Accessibility Tool</h2>
+            </div>
+            <div class="section-body">
+                <div class="content-box">
+
+                    <p style="margin-bottom:14px;text-align:justify;font-size:.95rem;line-height:1.7;">
+                        This tool uses your browser's built-in speech capabilities to convert speech to text 
+                        and text to speech — helping those with hearing or speech impairments communicate 
+                        more easily. No data is sent to any server.
+                    </p>
+
+                    <!-- ===== STATUS BAR ===== -->
+                    <div class="status-bar" id="statusBar">
+                        <span class="status-dot" id="statusDot"></span>
+                        <span id="statusText">Ready — click the microphone to start speaking</span>
+                    </div>
+
+                    <!-- ===== TEXT AREA ===== -->
+                    <div class="field-group">
+                        <label for="textOutput">Your Text</label>
+                        <textarea id="textOutput" placeholder="Speak or type here..."></textarea>
+                        <div class="char-count" id="charCount">0 characters</div>
+                    </div>
+
+                    <!-- ===== TOOLBAR ===== -->
+                    <div class="toolbar">
+                        <button class="btn-mic" id="micBtn" aria-label="Start listening">Start Listening</button>
+                        <button class="btn" id="speakBtn">Speak</button>
+                        <button class="btn-copy" id="copyBtn">Copy</button>
+                        <button class="btn-clear" id="clearBtn">Clear</button>
+                        <button class="btn-secondary" id="resetBtn">Reset All</button>
+                    </div>
+
+                    <!-- ===== LANGUAGE ===== -->
+                    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:4px 0 8px;">
+                        <label for="langSelect" style="font-weight:500;color:#1a5c3a;font-size:.9rem;">Language:</label>
+                        <select id="langSelect" style="padding:6px 12px;border:1px solid #ccc;border-radius:8px;font-size:.9rem;background:#fff;cursor:pointer;">
+                            <option value="en-US">English (US)</option>
+                            <option value="en-GB">English (UK)</option>
+                            <option value="hi-IN">Hindi</option>
+                            <option value="as-IN">Assamese</option>
+                            <option value="bn-IN">Bengali</option>
+                            <option value="ta-IN">Tamil</option>
+                            <option value="te-IN">Telugu</option>
+                            <option value="ml-IN">Malayalam</option>
+                            <option value="kn-IN">Kannada</option>
+                        </select>
+                    </div>
+
+                    <!-- ===== FEATURES ===== -->
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <span class="feature-name">Speech to Text</span>
+                            <span class="feature-desc">Click the microphone, speak naturally, and watch your words appear in real-time.</span>
+                        </div>
+                        <div class="feature-card">
+                            <span class="feature-name">Text to Speech</span>
+                            <span class="feature-desc">Type or paste text, click "Speak" — and the browser reads it aloud in a clear voice.</span>
+                        </div>
+                        <div class="feature-card">
+                            <span class="feature-name">Multi-Language Support</span>
+                            <span class="feature-desc">Choose from English, Hindi, Assamese, Bengali, Tamil, Telugu, Malayalam, and Kannada.</span>
+                        </div>
+                        <div class="feature-card">
+                            <span class="feature-name">Copy and Clear</span>
+                            <span class="feature-desc">Copy your text to the clipboard or clear it instantly with one click.</span>
+                        </div>
+                    </div>
+
+                    <!-- ===== DISCLAIMER ===== -->
+                    <div style="margin-top:18px;padding:10px 14px;background:#f8faf9;border:1px solid #d4e4dc;border-radius:8px;font-size:.8rem;color:#3d5a4e;text-align:center;">
+                        <strong>Privacy First:</strong> All speech processing happens locally in your browser. 
+                        No data is ever transmitted, stored, or visible to any server.
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="footer-inner">
+            <div class="footer-links">
+                <a href="../index.html">Home</a>
+                <a href="../about.html">About</a>
+                <a href="../experience.html">Experience</a>
+                <a href="../skills.html">Skills</a>
+                <a href="../projects.html">Projects</a>
+                <a href="../index.html#teaching">Teaching</a>
+                <a href="../contact.html">Contact</a>
+            </div>
+            <p class="footer-copy">&copy; 2026 Yadav Subba. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- ===== GLOBAL SCRIPTS ===== -->
+    <script src="../script.js"></script>
+
+    <!-- ===== TOOL SCRIPT ===== -->
+    <script>
+        (function() {
+            'use strict';
+
+            // DOM elements
+            const textOutput = document.getElementById('textOutput');
+            const micBtn = document.getElementById('micBtn');
+            const speakBtn = document.getElementById('speakBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const langSelect = document.getElementById('langSelect');
+            const statusText = document.getElementById('statusText');
+            const statusDot = document.getElementById('statusDot');
+            const charCount = document.getElementById('charCount');
+
+            // Speech recognition
+            let recognition = null;
+            let isListening = false;
+
+            // Speech synthesis
+            let speechSynth = window.speechSynthesis;
+
+            // ===== CHARACTER COUNTER =====
+            function updateCharCount() {
+                const text = textOutput.value;
+                const chars = text.length;
+                const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+                charCount.textContent = chars + ' characters  ·  ' + words + ' words';
+            }
+
+            textOutput.addEventListener('input', updateCharCount);
+
+            // ===== SPEECH TO TEXT =====
+            function initSpeechRecognition() {
+                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                    statusText.textContent = 'Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.';
+                    micBtn.disabled = true;
+                    return false;
+                }
+
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = langSelect.value;
+
+                recognition.onstart = function() {
+                    isListening = true;
+                    micBtn.textContent = 'Stop Listening';
+                    micBtn.classList.add('listening');
+                    statusDot.className = 'status-dot listening';
+                    statusText.textContent = 'Listening... Speak now';
+                };
+
+                recognition.onerror = function(event) {
+                    if (event.error === 'not-allowed') {
+                        statusText.textContent = 'Microphone access denied. Please allow microphone access.';
+                    } else if (event.error === 'no-speech') {
+                        statusText.textContent = 'No speech detected. Try again.';
+                    } else {
+                        statusText.textContent = 'Error: ' + event.error;
+                    }
+                    stopListening();
+                };
+
+                recognition.onend = function() {
+                    if (isListening) {
+                        try {
+                            recognition.start();
+                        } catch (e) {}
+                    } else {
+                        stopListening();
+                    }
+                };
+
+                recognition.onresult = function(event) {
+                    let finalText = '';
+                    let interimText = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        if (event.results[i].isFinal) {
+                            finalText += event.results[i][0].transcript;
+                        } else {
+                            interimText += event.results[i][0].transcript;
+                        }
+                    }
+                    if (finalText) {
+                        textOutput.value += (textOutput.value ? ' ' : '') + finalText;
+                        updateCharCount();
+                        statusText.textContent = 'Speech captured successfully';
+                        statusDot.className = 'status-dot active';
+                    }
+                    if (interimText) {
+                        statusText.textContent = 'Interim: ' + interimText;
+                    }
+                };
+
+                return true;
+            }
+
+            function startListening() {
+                if (!recognition) {
+                    if (!initSpeechRecognition()) return;
+                }
+                try {
+                    recognition.lang = langSelect.value;
+                    recognition.start();
+                    isListening = true;
+                    micBtn.textContent = 'Stop Listening';
+                    micBtn.classList.add('listening');
+                    statusDot.className = 'status-dot listening';
+                    statusText.textContent = 'Listening... Speak now';
+                } catch (e) {
+                    stopListening();
+                }
+            }
+
+            function stopListening() {
+                isListening = false;
+                if (recognition) {
+                    try {
+                        recognition.stop();
+                    } catch (e) {}
+                }
+                micBtn.textContent = 'Start Listening';
+                micBtn.classList.remove('listening');
+                if (statusDot.className !== 'status-dot active') {
+                    statusDot.className = 'status-dot';
+                }
+                if (statusText.textContent.includes('Listening')) {
+                    statusText.textContent = 'Stopped listening';
+                }
+            }
+
+            micBtn.addEventListener('click', function() {
+                if (isListening) {
+                    stopListening();
+                } else {
+                    startListening();
+                }
+            });
+
+            // ===== TEXT TO SPEECH =====
+            function speakText() {
+                const text = textOutput.value.trim();
+                if (!text) {
+                    statusText.textContent = 'Please enter some text to speak.';
+                    statusDot.className = 'status-dot';
+                    return;
+                }
+
+                if (!window.speechSynthesis) {
+                    statusText.textContent = 'Speech synthesis is not supported in this browser.';
+                    return;
+                }
+
+                window.speechSynthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = langSelect.value;
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+                utterance.volume = 1.0;
+
+                utterance.onstart = function() {
+                    statusText.textContent = 'Speaking...';
+                    statusDot.className = 'status-dot active';
+                };
+
+                utterance.onend = function() {
+                    statusText.textContent = 'Speaking completed';
+                    statusDot.className = 'status-dot';
+                };
+
+                utterance.onerror = function() {
+                    statusText.textContent = 'Error while speaking.';
+                    statusDot.className = 'status-dot';
+                };
+
+                window.speechSynthesis.speak(utterance);
+            }
+
+            speakBtn.addEventListener('click', speakText);
+
+            // ===== COPY =====
+            copyBtn.addEventListener('click', function() {
+                const text = textOutput.value;
+                if (!text) {
+                    statusText.textContent = 'Nothing to copy.';
+                    return;
+                }
+                navigator.clipboard.writeText(text).then(function() {
+                    statusText.textContent = 'Copied to clipboard!';
+                    copyBtn.textContent = 'Copied!';
+                    copyBtn.classList.add('copied');
+                    statusDot.className = 'status-dot active';
+                    setTimeout(function() {
+                        copyBtn.textContent = 'Copy';
+                        copyBtn.classList.remove('copied');
+                        statusDot.className = 'status-dot';
+                    }, 2000);
+                }).catch(function() {
+                    textOutput.select();
+                    document.execCommand('copy');
+                    statusText.textContent = 'Copied to clipboard!';
+                    copyBtn.textContent = 'Copied!';
+                    copyBtn.classList.add('copied');
+                    setTimeout(function() {
+                        copyBtn.textContent = 'Copy';
+                        copyBtn.classList.remove('copied');
+                    }, 2000);
+                });
+            });
+
+            // ===== CLEAR =====
+            clearBtn.addEventListener('click', function() {
+                textOutput.value = '';
+                updateCharCount();
+                statusText.textContent = 'Text cleared';
+                statusDot.className = 'status-dot';
+                if (isListening) stopListening();
+                if (window.speechSynthesis) window.speechSynthesis.cancel();
+            });
+
+            // ===== RESET =====
+            resetBtn.addEventListener('click', function() {
+                if (isListening) stopListening();
+                if (window.speechSynthesis) window.speechSynthesis.cancel();
+                textOutput.value = '';
+                updateCharCount();
+                langSelect.value = 'en-US';
+                statusText.textContent = 'Reset completed';
+                statusDot.className = 'status-dot';
+                if (recognition) {
+                    try { recognition.abort(); } catch (e) {}
+                    recognition = null;
+                }
+                initSpeechRecognition();
+            });
+
+            // ===== LANGUAGE CHANGE =====
+            langSelect.addEventListener('change', function() {
+                if (isListening) {
+                    stopListening();
+                    setTimeout(function() {
+                        recognition.lang = langSelect.value;
+                        startListening();
+                    }, 300);
+                } else {
+                    if (recognition) {
+                        recognition.lang = langSelect.value;
+                    }
+                }
+                statusText.textContent = 'Language changed to ' + langSelect.options[langSelect.selectedIndex].text;
+                statusDot.className = 'status-dot';
+            });
+
+            // ===== KEYBOARD SHORTCUTS =====
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    e.preventDefault();
+                    speakText();
+                }
+                if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+                    e.preventDefault();
+                    copyBtn.click();
+                }
+                if (e.key === 'Escape' && isListening) {
+                    stopListening();
+                }
+            });
+
+            // ===== INIT =====
+            initSpeechRecognition();
+            updateCharCount();
+            statusText.textContent = 'Ready — click the microphone to start speaking';
+
+        })();
+    </script>
+
+</body>
+</html>
